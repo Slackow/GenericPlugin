@@ -129,7 +129,7 @@ public class Main extends JavaPlugin implements Listener{
 		
 		ItemMeta item1Meta = item1.getItemMeta();
 		
-		item1Meta.setDisplayName(ChatColor.DARK_PURPLE + "INCEPTION");
+		item1Meta.setDisplayName(ChatColor.DARK_RED + "INCEPTION");
 		
 		ArrayList<String> item1Lore = new ArrayList<String>();
 		item1Lore.add(ChatColor.RESET + "BWAAAAAA");
