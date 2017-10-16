@@ -115,7 +115,7 @@ public class Main extends JavaPlugin implements Listener{
 	public void onInvClick(InventoryClickEvent e) {
 		if(e.getInventory().getName().equals("CHEST IN A CHEST")) {
 			Player player = (Player) e.getWhoClicked();
-			player.sendMessage("CLICKED ON CHECK LOLOLOL");
+			player.sendMessage("CLICKED ON CHEST LOLOLOL");
 			e.setCancelled(true);
 			Flame.add(player.getUniqueId());
 			player.closeInventory();
