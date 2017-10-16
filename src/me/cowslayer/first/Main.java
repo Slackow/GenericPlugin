@@ -35,7 +35,7 @@ public class Main extends JavaPlugin implements Listener{
 	
 	
 	public void onEnable() {
-		System.out.println(consolePrefix + "has been enabled");
+		System.out.println(consolePrefix + "has been enabled.");
 		PluginManager pm = Bukkit.getServer().getPluginManager();
 		pm.registerEvents(this, this);
 	}
@@ -146,6 +146,6 @@ public class Main extends JavaPlugin implements Listener{
 	
 	
 	public void onDisable() {
-		System.out.println(consolePrefix + "has been disabled");
+		System.out.println(consolePrefix + "has been disabled.");
 	}
 }
