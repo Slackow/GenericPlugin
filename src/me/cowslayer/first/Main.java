@@ -26,7 +26,7 @@ import org.bukkit.potion.PotionEffectType;
 public class Main extends JavaPlugin implements Listener{
 	
 	String consolePrefix = "[GenericPlugin]: ";
-	String igPrefix = ChatColor.RED + "[ง6GenericPlugin"+ChatColor.RED+"]: "+ ChatColor.WHITE;
+	String igPrefix = ChatColor.RED + "[ยง6GenericPlugin"+ChatColor.RED+"]: "+ ChatColor.WHITE;
 	
 	ArrayList<UUID> Flame = new ArrayList<UUID>();
 	
@@ -146,6 +146,6 @@ public class Main extends JavaPlugin implements Listener{
 	
 	
 	public void onDisable() {
-		System.out.println(consolePrefix + "has been disabled.");
+		System.out.println(consolePrefix + "has been disabled. test");
 	}
 }
