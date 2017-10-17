@@ -146,6 +146,6 @@ public class Main extends JavaPlugin implements Listener{
 	
 	
 	public void onDisable() {
-		System.out.println(consolePrefix + "has been disabled.");
+		System.out.println(consolePrefix + "has been disabled. test");
 	}
 }
