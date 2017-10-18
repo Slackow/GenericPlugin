@@ -1,33 +1,10 @@
-name: GenericPlugin
-main: me.cowslayer.first.Main
-version: 1.0
+name: TheFlash
+main: me.kihron.flash.Main
+version: 1.0.0
 commands:
-    currentxp:
-        description: Shows you your xp.
-        usage: /<command>
-    damage:
-        description: Damages you.
-        usage: /<command>
-    heal:
-        description: Heals you.
-        usage: /<command>
-    gm:
-        description: Changes gamemode.
-    gm0:
-        description: Changes gamemode to Survival.
-    gm1:
-        description: Changes gamemode to Creative.
-    gm2:
-        description: Changes gamemode to Adventure.
-    gm3:
-        description: Changes gamemode to Spectator.
-    chest:
-        description: Bwaaaaaa
-        usage: /<command>
-    god:
-        description: Can't Die lol
-        usage: /<command>
-    flameoff:
-        description: lol
-        usage: /<command>
-        
+    flashon:
+        usage: <command>
+        description: Enables Flash powers
+    flashoff:
+        usage: <command>
+        description: Disables Flash powers
