@@ -1,5 +1,5 @@
 name: TheFlash
-main: me.kihron.flash.Main
+main: me.KihCow.flash.Main
 version: 1.0.0
 commands:
     flashon:
