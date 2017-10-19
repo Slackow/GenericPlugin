@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -14,10 +15,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
-public class Main extends org.bukkit.plugin.java.JavaPlugin implements Listener
+public class Main extends JavaPlugin implements Listener
 {
   public Main() {}
   
@@ -41,10 +44,23 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin implements Listener
   
   public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
     Player player = (Player)sender;
+    ItemStack Helmet = player.getEquipment().getHelmet();
+    ItemStack Chest = player.getEquipment().getChestplate();
+    ItemStack Legs = player.getEquipment().getLeggings();
+    ItemStack Boots = player.getEquipment().getBoots();
     if (commandLabel.equalsIgnoreCase("flashon")) {
       Lightning.add(player.getUniqueId());
-      return true;
+      player.getEquipment().setHelmet(new ItemStack(Material.SKULL));
+     return true;
     }
+       if (commandLabel.equalsIgnoreCase("flashoff")) {
+         Lightning.remove(player.getUniqueId());
+         player.getEquipment().setHelmet(new ItemStack(Helmet));
+         player.getEquipment().setChestplate(new ItemStack(Chest));
+         player.getEquipment().setLeggings(new ItemStack(Legs));
+         player.getEquipment().setBoots(new ItemStack(Boots));
+        return true;
+        }
     return false;
   }
   
@@ -54,7 +70,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin implements Listener
   {
 	Player p = e.getPlayer();
     if (Lightning.contains(e.getPlayer().getUniqueId()) && p.hasPotionEffect(PotionEffectType.SPEED)) {}
-    	e.getPlayer().playEffect(e.getPlayer().getLocation(), Effect.CLOUD, 10);
+    	e.getPlayer().playEffect(e.getPlayer().getLocation(), Effect.MAGIC_CRIT, 10);
   }
   
   public void onDisable() {
