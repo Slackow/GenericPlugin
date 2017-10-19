@@ -1,37 +1,6 @@
-name: GenericPlugin
+name: Vault
 main: me.cowslayer.first.Main
 version: 1.0
 commands:
-    currentxp:
-        description: Shows you your xp.
-        usage: /<command>
-    damage:
-        description: Damages you.
-        usage: /<command>
-    heal:
-        description: Heals you.
-        usage: /<command>
-    gm:
-        description: Changes gamemode.
-        usage: /<command> <mode>
-    gm0:
-        description: Changes gamemode to Survival.
-        usage: /<command>
-    gm1:
-        description: Changes gamemode to Creative.
-        usage: /<command>
-    gm2:
-        description: Changes gamemode to Adventure.
-        usage: /<command>
-    gm3:
-        description: Changes gamemode to Spectator.
-        usage: /<command>
-    micromenu:
-        description: opens menu with options
-        usage: /<command>
-    god:
-        description: Can't Die lol
-        usage: /<command>
-    flameoff:
-        description: lol
-        usage: /<command>
+    vault:
+    echest:
