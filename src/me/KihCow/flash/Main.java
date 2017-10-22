@@ -9,8 +9,8 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -31,9 +31,8 @@ import org.bukkit.potion.PotionEffectType;
 
 public class Main extends JavaPlugin implements Listener
 {
-  public Main() {}
   
-  Set<UUID> Lightning = new HashSet<UUID>();
+  Set<UUID> flashOn = new HashSet<UUID>();
   
   public void onEnable() {
     PluginManager pm = Bukkit.getServer().getPluginManager();
@@ -55,15 +54,18 @@ public class Main extends JavaPlugin implements Listener
   
 @SuppressWarnings("deprecation")
 public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-    Player player = (Player)sender;
+    Player player = (Player) sender;
+    UUID u = player.getUniqueId();
     if (commandLabel.equalsIgnoreCase("flashon")) {
-      Lightning.add(player.getUniqueId());
+      flashOn.add(u);
       EntityEquipment a = player.getEquipment();
+     
       ItemStack[] armor = {a.getBoots(), a.getLeggings(), a.getChestplate(), a.getHelmet()};
-      players.put(player.getUniqueId(), armor);
+      players.put(u, armor);
       	ItemStack flashHead = new ItemStack(Material.SKULL_ITEM, 1, (byte) 3);
       	SkullMeta flashMeta = (SkullMeta) flashHead.getItemMeta();
-      	flashMeta.setOwner("Barry_H_Allen");
+      	//TODO fix deprication
+      	flashMeta.setOwningPlayer(Bukkit.getOfflinePlayer("flash"));
       	flashHead.setItemMeta(flashMeta);
       	ItemStack flashChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
       	ItemStack flashLegs = new ItemStack(Material.LEATHER_LEGGINGS);
@@ -74,31 +76,34 @@ public boolean onCommand(CommandSender sender, Command cmd, String commandLabel,
       	flashLegs.setItemMeta(flashLMeta);
       	flashBoots.setItemMeta(flashLMeta);
       	ItemStack[] flashArmor = {flashBoots, flashLegs, flashChestplate, flashHead};
-      player.getEquipment().setArmorContents(flashArmor);
+      	a.setArmorContents(flashArmor);
       player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100000, 10, true));
      return true;
     }
        if (commandLabel.equalsIgnoreCase("flashoff")) {
-         Lightning.remove(player.getUniqueId());
-         player.getEquipment().setArmorContents(players.get(player.getUniqueId()));
-     	 player.removePotionEffect(PotionEffectType.SPEED);
+        flashOff(player);
         return true;
         }
     return false;
   }
+
+public void flashOff(Player p) {
+	flashOn.remove(p.getUniqueId());
+    p.getEquipment().setArmorContents(players.get(p.getUniqueId()));
+	 p.removePotionEffect(PotionEffectType.SPEED);
+}
   
-@SuppressWarnings("deprecation")
 @EventHandler
-  public void onPlayerMove(PlayerMoveEvent e)
-  {
+  public void onPlayerMove(PlayerMoveEvent e) {
 	Player p = e.getPlayer();
-    if (Lightning.contains(p.getUniqueId()) && p.hasPotionEffect(PotionEffectType.SPEED)) 
-    	p.playEffect(p.getLocation(), Effect.CLOUD, 1);
+    if (flashOn.contains(p.getUniqueId()) && p.hasPotionEffect(PotionEffectType.SPEED)) {
+    	p.spawnParticle(Particle.CLOUD, p.getLocation(), 1, 0.0, 0.0, 0.0, 0.0);
+    }
   }
 
 @EventHandler
 public void onArmorSlot(InventoryClickEvent event) {
-    if (event.getSlotType() == SlotType.ARMOR  && Lightning.contains(event.getWhoClicked().getUniqueId())){
+    if (event.getSlotType().equals(SlotType.ARMOR)  && flashOn.contains(event.getWhoClicked().getUniqueId())){
         event.setCancelled(true);
     }
 }
@@ -109,5 +114,9 @@ public void onArmorSlot(InventoryClickEvent event) {
     console.sendMessage(ChatColor.RED + "The Flash");
     console.sendMessage(ChatColor.RED + "Disabled");
     console.sendMessage(ChatColor.GOLD + "-=-=-=-=-=-");
+    for(Player p : Bukkit.getOnlinePlayers()) {
+    	if(flashOn.contains(p.getUniqueId())) 
+    		flashOff(p);
+    }
   }
 }
