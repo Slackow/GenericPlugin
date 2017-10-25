@@ -1,0 +1,16 @@
+name: TheFlash
+main: me.KihCow.flash.Main
+version: 1.0.0
+commands:
+    flashon:
+        usage: /<command>
+        description: Enables Flash powers
+    flashoff:
+        usage: /<command>
+        description: Disables Flash powers
+    test:
+        usage: /<command>
+        description: A test command that shouldn't be here
+    getFlashRing:
+        usage: /<command>
+        description: Gives the player a ring
