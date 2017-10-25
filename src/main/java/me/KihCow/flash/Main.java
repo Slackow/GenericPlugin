@@ -23,6 +23,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -100,6 +104,7 @@ public class Main extends JavaPlugin implements Listener {
         flashOnline.remove(p.getUniqueId());
         p.getEquipment().setArmorContents(playersArmor.get(p.getUniqueId()));
         p.removePotionEffect(PotionEffectType.SPEED);
+        p.setVelocity(p.getVelocity().normalize());
     }
 
     private void flashToggle(Player p) {
@@ -130,20 +135,22 @@ public class Main extends JavaPlugin implements Listener {
         if (flashOnline.contains(p.getUniqueId())) {
             p.spawnParticle(Particle.CLOUD, p.getLocation(), 1, 0.0, 0.0, 0.0, 0.0);
             //Figuring out running on water.
-            /*Location loc = p.getLocation();
-            loc.setY(loc.getBlockY() - 1);
+            Location loc = p.getLocation();
+            loc.setY(loc.getBlockY() - 0.1);
             Scoreboard s = Bukkit.getScoreboardManager().getNewScoreboard();
             Objective o = s.registerNewObjective("dummy","dummy");
             o.setDisplayName("INFO");
             o.getScore(loc.getBlock().getType().toString()).setScore(1);
             o.setDisplaySlot(DisplaySlot.SIDEBAR);
-            if (loc.getBlock().getType().equals(Material.WATER)) {
+            if (loc.getBlock().getType().equals(Material.STATIONARY_WATER)) {
                 p.setGravity(false);
-                p.sendMessage("WOW");
+                p.setVelocity(new Vector(0.0, 0.0, 0.0));
+                //p.sendMessage("WOW");
             } else {
+                p.setVelocity(p.getVelocity().normalize());
                 p.setGravity(true);
-                p.setScoreboard(s);
-            }*/
+                //p.sendMessage(loc.getBlock().getType().toString());
+            }
         }
     }
 
