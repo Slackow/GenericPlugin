@@ -4,10 +4,12 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,10 +25,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -46,10 +44,17 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private Map<UUID, ItemStack[]> playersArmor = new HashMap<>();
+    private Map<UUID, Collection<PotionEffect>> playersEffects = new HashMap<>();
 
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLbl, String[] args) {
         Player p = (Player) sender;
         UUID u = p.getUniqueId();
+        if(cmdLbl.equalsIgnoreCase("Gravity")){
+            p.setGravity(!p.hasGravity());
+            return true;
+        }
+
+
         if (cmdLbl.equalsIgnoreCase("test")) {
             p.sendMessage("\"" + p.getName() + "\" : \"" + u + "\"WORKED!!");
             return true;
@@ -88,22 +93,33 @@ public class Main extends JavaPlugin implements Listener {
 
         ItemStack flashChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
         ItemStack flashLegs = new ItemStack(Material.LEATHER_LEGGINGS);
-        ItemStack flashBoots = new ItemStack(Material.LEATHER_BOOTS);
+        ItemStack flashBoots = new ItemStack(Material.GOLD_BOOTS);
 
         LeatherArmorMeta flashLMeta = (LeatherArmorMeta) flashChestplate.getItemMeta();
         flashLMeta.setColor(Color.RED);
+        flashLMeta.setUnbreakable(true);
         flashChestplate.setItemMeta(flashLMeta);
         flashLegs.setItemMeta(flashLMeta);
         flashBoots.setItemMeta(flashLMeta);
         ItemStack[] flashArmor = {flashBoots, flashLegs, flashChestplate, flashHead};
         a.setArmorContents(flashArmor);
+        playersEffects.put(u, p.getActivePotionEffects());
+        for(PotionEffect potionEffect : p.getActivePotionEffects())
+            p.removePotionEffect(potionEffect.getType());
         p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100000, 10, true));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100000, 10, true));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 100000, 10, true));
     }
 
     private void flashOff(Player p) {
-        flashOnline.remove(p.getUniqueId());
-        p.getEquipment().setArmorContents(playersArmor.get(p.getUniqueId()));
+        UUID u = p.getUniqueId();
+        flashOnline.remove(u);
+        p.getEquipment().setArmorContents(playersArmor.get(u));
         p.removePotionEffect(PotionEffectType.SPEED);
+        p.removePotionEffect(PotionEffectType.INCREASE_DAMAGE);
+        p.removePotionEffect(PotionEffectType.FAST_DIGGING);
+        for(PotionEffect potionEffect : playersEffects.get(u))
+            p.addPotionEffect(potionEffect);
         p.setVelocity(p.getVelocity().normalize());
     }
 
@@ -113,47 +129,42 @@ public class Main extends JavaPlugin implements Listener {
         else
             flashOn(p);
     }
-
-    //@EventHandler
-    //public void onInteract(PlayerInteractEvent e){
-    //    if(e.getItem().getItemMeta().getLocalizedName().equals("Flash Ring")) {
-    //       Player p = e.getPlayer();
-    //if (e.getAction().equals(Action.PHYSICAL) && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK))
-    //    e.setCancelled(true);
-    //        flashToggle(p);
-    //    }
-    //}
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
         if (e.getAction().equals(Action.RIGHT_CLICK_AIR) && "Flash Ring".equals(e.getItem().getItemMeta().getLocalizedName()))
             flashToggle(e.getPlayer());
     }
-
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        if("Flash Ring".equals(e.getItemInHand().getItemMeta().getLocalizedName()))
+            e.setCancelled(true);
+    }
+    private boolean happened = false;
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (flashOnline.contains(p.getUniqueId())) {
             p.spawnParticle(Particle.CLOUD, p.getLocation(), 1, 0.0, 0.0, 0.0, 0.0);
             //Figuring out running on water.
-            Location loc = p.getLocation();
-            loc.setY(loc.getBlockY() - 0.1);
-            Scoreboard s = Bukkit.getScoreboardManager().getNewScoreboard();
-            Objective o = s.registerNewObjective("dummy","dummy");
-            o.setDisplayName("INFO");
-            o.getScore(loc.getBlock().getType().toString()).setScore(1);
-            o.setDisplaySlot(DisplaySlot.SIDEBAR);
-            if (loc.getBlock().getType().equals(Material.STATIONARY_WATER)) {
-                p.setGravity(false);
-                p.setVelocity(new Vector(0.0, 0.0, 0.0));
-                //p.sendMessage("WOW");
-            } else {
-                p.setVelocity(p.getVelocity().normalize());
-                p.setGravity(true);
-                //p.sendMessage(loc.getBlock().getType().toString());
+            if (e.getTo().getBlock().isLiquid()) {
+                /*p.setGravity(false);
+                p.getLocation().setY(loc.getY() + p.getFallDistance() == 0 ? 1:0);
+                p.spawnParticle(Particle.WATER_BUBBLE, p.getLocation(), 1);
+                if(!happened)
+                    p.setVelocity(new Vector(0.0, 0.0, 0.0));
+                happened = true;*/
+                ItemMeta lBoots = p.getEquipment().getBoots().getItemMeta();
+                lBoots.addEnchant(Enchantment.DEPTH_STRIDER, 500, true);
+                p.getEquipment().getBoots().setItemMeta(lBoots);
+                happened = true;
+            } else if(happened){
+                ItemMeta lBoots = p.getEquipment().getBoots().getItemMeta();
+                lBoots.removeEnchant(Enchantment.DEPTH_STRIDER);
+                p.getEquipment().getBoots().setItemMeta(lBoots);
+                happened = false;
             }
         }
     }
-
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
         UUID u = e.getPlayer().getUniqueId();
@@ -174,9 +185,8 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onArmorSlot(InventoryClickEvent e) {
-        if (e.getSlotType().equals(SlotType.ARMOR) && flashOnline.contains(e.getWhoClicked().getUniqueId())) {
+        if (e.getSlotType().equals(SlotType.ARMOR) && flashOnline.contains(e.getWhoClicked().getUniqueId()))
             e.setCancelled(true);
-        }
     }
 
     public void onDisable() {
